@@ -1,6 +1,8 @@
-# apex-flow-agent
+# Apex-Flow-Agent
 
 Lightweight repo for the Apex Flow agent(s). This repository contains one or more small agent implementations under `my-agents/` — currently the `apex-agent-app` agent.
+
+Demo link: https://f1-service-901927344110.us-central1.run.app
 
 ## What this is
 
@@ -66,4 +68,4 @@ Maintained by the repository owner. For questions or help, open an issue in this
 ---
 
 If you'd like, I can: add a simple test harness, add a GitHub Actions workflow to run tests, or update the README with concrete examples taken from `my-agents/apex-agent-app/agent.py` (I can inspect the file and surface usage examples). Which would you like next?
-# apex-flow-agent
+
