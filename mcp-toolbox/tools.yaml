@@ -1,7 +1,7 @@
 sources:
   apexflow-cloud-sql:
     kind: cloud-sql-postgres
-    project: apex-flow-478603
+    project: YOUR_PROJECT_ID
     region: us-central1
     instance: f1db-instance
     database: postgres
