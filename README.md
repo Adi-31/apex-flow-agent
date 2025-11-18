@@ -45,19 +45,6 @@ If the agent is intended to be run as a package/module you may instead add the a
 - Keep `requirements.txt` next to the agent implementation to make dependency management explicit per-agent.
 - Follow usual Python practices: keep secrets out of the repo, use a `.env` or the OS environment for keys/config.
 
-## Tests
-
-This repository does not include an automated test suite by default. Recommended next steps:
-
-- Add unit tests under a `tests/` directory (pytest recommended).
-- Add a simple CI workflow (GitHub Actions) to run linting and tests on push.
-
-Example to run tests (after adding pytest):
-
-```bash
-pip install pytest
-pytest -q
-```
 
 ## Contributing
 
