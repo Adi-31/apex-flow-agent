@@ -1,0 +1,98 @@
+sources:
+  apexflow-cloud-sql:
+    kind: cloud-sql-postgres
+    project: apex-flow-478603
+    region: us-central1
+    instance: f1db-instance
+    database: postgres
+    user: postgres
+    password: "postgres"
+
+tools:
+  # ---------------------------------------------------------
+  # SHIPMENTS TABLE QUERIES
+  # ---------------------------------------------------------
+
+  get-all-shipments:
+    kind: postgres-sql
+    source: apexflow-cloud-sql
+    description: "Retrieve all shipment records."
+    parameters: []
+    statement: SELECT * FROM shipments;
+
+  search-shipment-by-item:
+    kind: postgres-sql
+    source: apexflow-cloud-sql
+    description: "Search a shipment by item name."
+    parameters:
+      - name: item_name
+        type: string
+        description: The name of the item.
+    statement: SELECT * FROM shipments WHERE item_name ILIKE '%' || $1 || '%';
+
+  search-shipment-by-status:
+    kind: postgres-sql
+    source: apexflow-cloud-sql
+    description: "Search shipments filtered by status (e.g., delayed, missing, on_time)."
+    parameters:
+      - name: status
+        type: string
+        description: The shipment status.
+    statement: SELECT * FROM shipments WHERE status = $1;
+
+  # ---------------------------------------------------------
+  # EXPECTED INVENTORY TABLE QUERIES
+  # ---------------------------------------------------------
+
+  get-expected-inventory:
+    kind: postgres-sql
+    source: apexflow-cloud-sql
+    description: "Retrieve the entire expected F1 car part inventory."
+    parameters: []
+    statement: SELECT * FROM expected_inventory;
+
+  search-expected-item:
+    kind: postgres-sql
+    source: apexflow-cloud-sql
+    description: "Search expected inventory by name."
+    parameters:
+      - name: item_name
+        type: string
+        description: Search term used to match part names.
+    statement: SELECT * FROM expected_inventory WHERE item_name ILIKE '%' || $1 || '%';
+
+  # ---------------------------------------------------------
+  # DISCREPANCY CHECKER TOOL (SQL-BASED LOGIC)
+  # ---------------------------------------------------------
+
+  detect-discrepancies:
+    kind: postgres-sql
+    source: apexflow-cloud-sql
+    description: "Detect mismatches between shipments and expected inventory."
+    parameters: []
+    statement: |
+      SELECT 
+        e.item_name AS expected_item,
+        e.expected_quantity,
+        COALESCE(s.quantity_received, 0) AS received_quantity,
+        (e.expected_quantity - COALESCE(s.quantity_received, 0)) AS quantity_difference,
+        CASE 
+          WHEN s.id IS NULL THEN 'missing_in_manifest'
+          WHEN e.expected_quantity != s.quantity_received THEN 'quantity_mismatch'
+          ELSE 'ok'
+        END AS discrepancy_type
+      FROM expected_inventory e
+      LEFT JOIN shipments s
+        ON LOWER(e.item_name) = LOWER(s.item_name)
+      WHERE 
+        s.id IS NULL 
+        OR e.expected_quantity != s.quantity_received;
+
+toolsets:
+  apexflow_toolset:
+    - get-all-shipments
+    - search-shipment-by-item
+    - search-shipment-by-status
+    - get-expected-inventory
+    - search-expected-item
+    - detect-discrepancies
